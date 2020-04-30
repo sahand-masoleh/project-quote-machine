@@ -16,18 +16,19 @@ body {
   align-items: center;
 }
 #quote-box {
-  max-width: 80vw;
+  width: 80vw;
   border-radius: 1rem;
   padding: 1rem;
   display: grid;
   grid-template-columns: 50% 50%;
   box-shadow: inset 0 0 0 0.2rem white;
   border: 0.2rem solid transparent;
-  transition: all 1s;
+  /* transition: all 1s; */
 }
 #text {
+  color: white;
   font-size: 2rem;
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   grid-column: 1/3;
   display: grid;
   grid-template-columns: 100%;
@@ -35,7 +36,8 @@ body {
 
 #quotation-mark {
   justify-self: center;
-  color: white;
+  color: black;
+  margin: 1rem;
 }
 #author {
   grid-column: 1/3;
@@ -66,5 +68,15 @@ body {
 @keyframes rotate {
   100% {
     rotate: 2turn;
+  }
+}
+.fade {
+  animation: fade 0.5s normal ease-in-out;
+}
+
+@keyframes fade {
+  50% {
+    opacity: 0;
+    filter: blur(0.25em);
   }
 }

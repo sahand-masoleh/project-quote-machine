@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import * as data from "./quotes.json";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,82 +9,108 @@ import {
   faQuoteRight,
 } from "@fortawesome/free-solid-svg-icons";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      quote: "Loading...",
-      author: "",
-      quotes: data.quotes,
-      index: 0,
-      color: "#000000",
-    };
-    this.newQuote = this.newQuote.bind(this);
+function App() {
+  const [quote, setQuote] = useState("");
+  const [author, setAuthor] = useState("");
+  const [index, setIndex] = useState(0);
+  const [colorArray, setColorArray] = useState([360, 100, 80, 0]);
+  const quotes = data.quotes;
+
+  useEffect(() => newQuote(), []); //Grab a quote on the firt load, equal to componentDidMount
+
+  function newQuote() {
+    setIndex(Math.round(quotes.length * Math.random()));
+    setQuote(quotes[index].quote);
+    setAuthor(quotes[index].author);
+    newColor();
   }
-  componentDidMount() {
-    this.newQuote();
-  }
-  newQuote() {
-    this.setState({
-      index: Math.round(this.state.quotes.length * Math.random()),
-    });
-    this.setState({
-      quote: this.state.quotes[this.state.index].quote,
-      author: this.state.quotes[this.state.index].author,
-    });
-    this.newColor();
-  }
-  newColor() {
+
+  function newColor() {
     let randomInt = (min, max) => {
       return min + Math.round(Math.random() * (max - min));
     };
-    let randomColor = () => {
-      return `hsl(${randomInt(0, 360)}, ${randomInt(0, 100)}%, ${randomInt(
-        50,
-        80
-      )}%)`;
-    };
-    this.setState({
-      color: `linear-gradient(${randomInt(
-        0,
-        360
-      )}deg, ${randomColor()}0%,${randomColor()}100%)`,
-    });
+    let randomColor = [
+      randomInt(0, 360),
+      randomInt(0, 100),
+      randomInt(40, 70),
+      randomInt(0, 360),
+    ];
+    let duration = 500;
+    let speed = 1000 / 60;
+    let frames = duration / speed;
+    let steps = colorArray.map((v, i) => (randomColor[i] - v) / frames);
+    let j = 0;
+    (function transition() {
+      setColorArray((prevColorArray) => [
+        prevColorArray[0] + steps[0],
+        prevColorArray[1] + steps[1],
+        prevColorArray[2] + steps[2],
+        prevColorArray[3] + steps[3],
+      ]);
+      j++;
+      if (j <= frames) {
+        requestAnimationFrame(transition);
+      }
+    })();
   }
-  render() {
-    const quoteBoxStyle = {
-      background: this.state.color,
-    };
-    return (
-      <div id="quote-box" style={quoteBoxStyle}>
-        <Text text={this.state.quote} />
-        <Author text={this.state.author} />
-        <TweetQuote text={this.state.quote} />
-        <NewQuote function={this.newQuote} />
-      </div>
-    );
-  }
+  return (
+    <div
+      id="quote-box"
+      style={{
+        background: `linear-gradient(${colorArray[3]}deg, hsl(${
+          colorArray[0]
+        }, ${colorArray[1]}%, ${colorArray[2]}%)0%,hsl(${
+          colorArray[0] + 180
+        }, ${colorArray[1]}%, ${colorArray[2]}%)100%)`,
+      }}
+    >
+      <Text text={quote} />
+      <Author text={author} />
+      <TweetQuote text={quote} />
+      <NewQuote function={newQuote} />
+    </div>
+  );
 }
 
-const Text = (props) => {
+function Text(props) {
+  const [fade, setFade] = useState(false);
+  const [text, setText] = useState("");
+  const fader = () => {
+    setFade(!fade);
+  };
+  useEffect(() => {
+    fader();
+    setTimeout(() => setText(props.text), 250);
+  }, [props.text]);
   return (
     <div id="text">
       <FontAwesomeIcon icon={faQuoteLeft} id="quotation-mark" />
-      <p>{props.text}</p>
+      <p className={fade ? "fade" : null} onAnimationEnd={fader}>
+        {text}
+      </p>
       <FontAwesomeIcon icon={faQuoteRight} id="quotation-mark" />
     </div>
   );
-};
+}
 
-const Author = (props) => {
+function Author(props) {
+  const [fade, setFade] = useState(false);
+  const [text, setText] = useState("");
+  const fader = () => {
+    setFade(!fade);
+  };
+  useEffect(() => {
+    fader();
+    setTimeout(() => setText(props.text), 250);
+  }, [props.text]);
   return (
     <div id="author">
-      <p>
-        <em>-{props.text}</em>
+      <p className={fade ? "fade" : null} onAnimationEnd={fader}>
+        <em>-{text}</em>
       </p>
     </div>
   );
-};
+}
 
 const TweetQuote = (props) => {
   return (
@@ -101,35 +127,27 @@ const TweetQuote = (props) => {
   );
 };
 
-class NewQuote extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { click: false };
-    this.rotate = this.rotate.bind(this);
-    this.onClick = this.onClick.bind(this);
-  }
-  rotate() {
-    this.setState({ click: !this.state.click });
-  }
-  onClick() {
-    this.props.function();
-    this.rotate();
-  }
-
-  render() {
-    return (
-      <div
-        id="new-quote"
-        className={this.state.click ? "rotate" : null}
-        onClick={this.onClick}
-        onAnimationEnd={() => this.setState({ click: !this.state.click })}
-      >
-        <p>
-          <FontAwesomeIcon icon={faRedo} />
-        </p>
-      </div>
-    );
-  }
+function NewQuote(props) {
+  const [click, setClick] = useState(false);
+  const rotate = () => {
+    setClick(!click);
+  };
+  const onClick = () => {
+    props.function();
+    rotate();
+  };
+  return (
+    <div
+      id="new-quote"
+      className={click ? "rotate" : null}
+      onClick={onClick}
+      onAnimationEnd={rotate}
+    >
+      <p>
+        <FontAwesomeIcon icon={faRedo} />
+      </p>
+    </div>
+  );
 }
 
 export default App;
