@@ -84,28 +84,25 @@ function App() {
 
 function Text(props) {
   const [fade, setFade] = useState(false);
-  const [text, setText] = useState("");
   const [height, setHeight] = useState(null);
   const [scrollHeight, setScrollHeight] = useState(null);
   const textRef = useRef(null);
   useEffect(() => {
-    setHeight("2rem");
     fader();
-    setTimeout(() => setText(props.text), 250);
+    setScrollHeight(textRef.current.scrollHeight);
   }, [props.text]);
   useEffect(() => {
-    setScrollHeight(`${textRef.current.scrollHeight}px`);
-  }, [text]);
-  useEffect(() => {
-    setHeight(scrollHeight);
-  }, [scrollHeight]);
+    if (height !== scrollHeight) {
+      setHeight(scrollHeight);
+    }
+  }, [height, scrollHeight]);
   const fader = () => {
     setFade(!fade);
   };
   return (
     <div id="text" style={{ height: height }}>
       <p ref={textRef} className={fade ? "fade" : null} onAnimationEnd={fader}>
-        {text}
+        {props.text}
       </p>
     </div>
   );
