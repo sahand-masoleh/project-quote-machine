@@ -89,22 +89,18 @@ function Text(props) {
   const [scrollHeight, setScrollHeight] = useState(null);
   const textRef = useRef(null);
   useEffect(() => {
-    setScrollHeight(textRef.current.scrollHeight);
-  });
-  useEffect(() => {
-    setHeight(0);
-    setTimeout(transition(), 250);
-  }, [scrollHeight]);
-  useEffect(() => {
     setHeight("2rem");
     fader();
     setTimeout(() => setText(props.text), 250);
   }, [props.text]);
+  useEffect(() => {
+    setScrollHeight(`${textRef.current.scrollHeight}px`);
+  }, [text]);
+  useEffect(() => {
+    setHeight(scrollHeight);
+  }, [scrollHeight]);
   const fader = () => {
     setFade(!fade);
-  };
-  const transition = () => {
-    setHeight(scrollHeight);
   };
   return (
     <div id="text" style={{ height: height }}>
