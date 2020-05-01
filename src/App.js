@@ -110,18 +110,16 @@ function Text(props) {
 
 function Author(props) {
   const [fade, setFade] = useState(false);
-  const [text, setText] = useState("");
   const fader = () => {
     setFade(!fade);
   };
   useEffect(() => {
     fader();
-    setTimeout(() => setText(props.text), 250);
   }, [props.text]);
   return (
     <div id="author">
       <p className={fade ? "fade" : null} onAnimationEnd={fader}>
-        <em>-{text}</em>
+        <em>-{props.text}</em>
       </p>
     </div>
   );

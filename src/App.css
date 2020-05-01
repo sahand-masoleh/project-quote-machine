@@ -80,7 +80,7 @@
 }
 
 @keyframes fade {
-  50% {
+  0% {
     opacity: 0;
     filter: blur(0.25em);
   }
