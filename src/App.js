@@ -55,7 +55,7 @@ function App() {
   }
   return (
     <div
-      id="quote-box"
+      id="body"
       style={{
         background: `linear-gradient(${colorArray[3]}deg, hsl(${
           colorArray[0]
@@ -64,10 +64,14 @@ function App() {
         }, ${colorArray[1]}%, ${colorArray[2]}%)100%)`,
       }}
     >
-      <Text text={quote} />
-      <Author text={author} />
-      <TweetQuote text={quote} />
-      <NewQuote function={newQuote} />
+      <div id="quote-box">
+        <FontAwesomeIcon icon={faQuoteLeft} className="quotation-mark" />
+        <Text text={quote} />
+        <FontAwesomeIcon icon={faQuoteRight} className="quotation-mark" />
+        <Author text={author} />
+        <TweetQuote text={quote} />
+        <NewQuote function={newQuote} />
+      </div>
     </div>
   );
 }
@@ -75,20 +79,26 @@ function App() {
 function Text(props) {
   const [fade, setFade] = useState(false);
   const [text, setText] = useState("");
-  const fader = () => {
-    setFade(!fade);
-  };
+  const [height, setHeight] = useState(["0"]);
+  const [scrollHeight, setScrollHeight] = useState(0);
+  const textRef = useRef(null);
   useEffect(() => {
     fader();
     setTimeout(() => setText(props.text), 250);
+    setScrollHeight(textRef.current.scrollHeight);
+    transition();
   }, [props.text]);
+  const fader = () => {
+    setFade(!fade);
+  };
+  function transition() {
+    setHeight(scrollHeight);
+  }
   return (
-    <div id="text">
-      <FontAwesomeIcon icon={faQuoteLeft} id="quotation-mark" />
-      <p className={fade ? "fade" : null} onAnimationEnd={fader}>
+    <div id="text" style={{ height: height }}>
+      <p ref={textRef} className={fade ? "fade" : null} onAnimationEnd={fader}>
         {text}
       </p>
-      <FontAwesomeIcon icon={faQuoteRight} id="quotation-mark" />
     </div>
   );
 }
