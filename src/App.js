@@ -19,7 +19,13 @@ function App() {
   useEffect(() => newQuote(), []); //Grab a quote on the firt load, equal to componentDidMount
 
   function newQuote() {
-    setIndex(Math.round(quotes.length * Math.random()));
+    setIndex((prevIndex) => {
+      let index = Math.round(quotes.length * Math.random());
+      while (index === prevIndex) {
+        return Math.round(quotes.length * Math.random());
+      }
+      return index;
+    });
     setQuote(quotes[index].quote);
     setAuthor(quotes[index].author);
     newColor();
@@ -79,21 +85,27 @@ function App() {
 function Text(props) {
   const [fade, setFade] = useState(false);
   const [text, setText] = useState("");
-  const [height, setHeight] = useState(["0"]);
-  const [scrollHeight, setScrollHeight] = useState(0);
+  const [height, setHeight] = useState(null);
+  const [scrollHeight, setScrollHeight] = useState(null);
   const textRef = useRef(null);
   useEffect(() => {
+    setScrollHeight(textRef.current.scrollHeight);
+  });
+  useEffect(() => {
+    setHeight(0);
+    setTimeout(transition(), 250);
+  }, [scrollHeight]);
+  useEffect(() => {
+    setHeight("2rem");
     fader();
     setTimeout(() => setText(props.text), 250);
-    setScrollHeight(textRef.current.scrollHeight);
-    transition();
   }, [props.text]);
   const fader = () => {
     setFade(!fade);
   };
-  function transition() {
+  const transition = () => {
     setHeight(scrollHeight);
-  }
+  };
   return (
     <div id="text" style={{ height: height }}>
       <p ref={textRef} className={fade ? "fade" : null} onAnimationEnd={fader}>
